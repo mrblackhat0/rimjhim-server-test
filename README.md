@@ -1,30 +1,37 @@
-# Rimjhim API — smoke-test scaffold
+# Rimjhim API
 
-This is a tiny FastAPI service for testing deployment and connectivity before adding source-specific music features.
+FastAPI backend for health checks and playback URL resolution testing.
 
 ## Run locally
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\\Scripts\\activate
 pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 
-Check:
-- `http://127.0.0.1:8000/health`
-- `http://127.0.0.1:8000/api/v1/capabilities`
-- `http://127.0.0.1:8000/docs`
+## Endpoints
 
-## Deploy to Render
+- `GET /health`
+- `GET /api/v1/capabilities`
+- `GET /api/v1/search?videoId=YALvuUpY_b0`
+- `GET /api/v1/playback/resolve?videoId=YALvuUpY_b0`
+- `GET /docs`
 
-1. Push this folder to a GitHub repository.
-2. In Render, choose **New → Blueprint** and connect that repository.
-3. Render reads `render.yaml`; select the free plan if offered for the account.
-4. After deployment, open `/health` and `/api/v1/capabilities`.
+## Test
 
-Free Render services sleep after inactivity and have ephemeral local storage. This prototype intentionally does not relay audio or store music files.
+```bash
+curl "http://127.0.0.1:8000/api/v1/playback/resolve?videoId=YALvuUpY_b0"
+```
 
-## Important
+A successful response includes `audioUrl`, a temporary upstream media URL.
 
-This is only a server connectivity smoke test. It does not yet implement search, audio extraction, streaming, or downloads. Those features must use sources and methods permitted for the intended use. Never put API secrets in the mobile app or commit them to Git.
+Do not persist resolved URLs: they may expire. Resolve again when needed.
+
+This prototype does not download or relay audio through the server.
+Extraction can fail when the upstream source changes or restricts access.
+A resolved URL is not proof that playback will work in every player or
+network. Test actual playback, buffering, seeking, and background behavior.
+
+Use only content and playback methods you are authorized to access.
+This prototype is not production-ready and has no authentication or rate
+limiting. Configure allowed origins and add abuse protection before public use.
